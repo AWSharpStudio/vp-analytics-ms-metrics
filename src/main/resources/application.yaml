@@ -1,0 +1,12 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: vp-analytics-ms-metrics
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
