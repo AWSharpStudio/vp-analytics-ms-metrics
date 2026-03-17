@@ -5,17 +5,19 @@ import lombok.Getter;
 
 @Getter
 public enum EExpenseCategories {
-    PAID_TRAFFIC("Trafego Pago"),
-    SALES_TEAM("Equipe de Vendas"),
-    MARKETING_TEAM("Equipe de Marketing"),
-    PRO_LABORE("Pró-labore"),
-    TAXES("Impostos"),
-    NOT_CATEGORIZED("Não Categorizado");
+    PAID_TRAFFIC("Tráfego Pago", true),
+    SALES_TEAM("Equipe de Vendas", true),
+    MARKETING_TEAM("Equipe de Marketing", true),
+    PRO_LABORE("Pró-labore", false),
+    TAXES("Impostos", false),
+    NOT_CATEGORIZED("Não Categorizado", false);
 
     private final String label;
+    private final boolean isAcquisitionCost;
 
-    EExpenseCategories(String label) {
+    EExpenseCategories(String label, boolean isAcquisitionCost) {
         this.label = label;
+        this.isAcquisitionCost = isAcquisitionCost;
     }
 
     public static EExpenseCategories labelOf(String label) {

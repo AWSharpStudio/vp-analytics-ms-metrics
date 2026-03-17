@@ -15,6 +15,14 @@ public enum ETransactionType {
         this.label = label;
     }
 
+    public boolean isRevenue() {
+        return this == REVENUE;
+    }
+
+    public boolean isExpense() {
+        return this == EXPENSE;
+    }
+
     public static ETransactionType labelOf(String label) {
         for (ETransactionType value : values()) {
             if (value.label.equals(label)) {
