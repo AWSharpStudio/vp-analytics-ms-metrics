@@ -1,0 +1,26 @@
+package com.vp.analytics.ms.metrics.domain.model;
+
+
+import lombok.Getter;
+
+@Getter
+public enum ETransactionType {
+    REVENUE("Receita"),
+    EXPENSE("Despesa"),
+    NOT_CATEGORIZED("Não Categorizado");
+
+    private final String label;
+
+    ETransactionType(String label) {
+        this.label = label;
+    }
+
+    public static ETransactionType labelOf(String label) {
+        for (ETransactionType value : values()) {
+            if (value.label.equals(label)) {
+                return value;
+            }
+        }
+        return NOT_CATEGORIZED;
+    }
+}
