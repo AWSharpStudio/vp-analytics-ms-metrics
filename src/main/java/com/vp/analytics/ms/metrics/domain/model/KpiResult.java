@@ -8,7 +8,7 @@ public record KpiResult(
         BigDecimal customerAcquisitionCost,
         BigDecimal lifetimeValue,
         BigDecimal netResult,
-        Map<String, BigDecimal> RevenueByCategory,
-        Map<String, BigDecimal> expenseByCategory
+        Map<ERevenueCategories, BigDecimal> revenueByCategory,
+        Map<EExpenseCategories, BigDecimal> expenseByCategory
 ) {
 }
