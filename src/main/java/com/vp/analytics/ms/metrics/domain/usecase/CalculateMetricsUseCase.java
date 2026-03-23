@@ -1,4 +1,4 @@
-package com.vp.analytics.ms.metrics.adapters;
+package com.vp.analytics.ms.metrics.domain.usecase;
 
 import com.vp.analytics.ms.metrics.domain.model.TransactionIngestedEvent;
 import com.vp.analytics.ms.metrics.domain.ports.input.CalculateMetricsInputPort;

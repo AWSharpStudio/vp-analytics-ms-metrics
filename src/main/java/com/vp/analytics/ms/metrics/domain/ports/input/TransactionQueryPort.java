@@ -1,5 +1,6 @@
 package com.vp.analytics.ms.metrics.domain.ports.input;
 
+import com.vp.analytics.ms.metrics.domain.calculation.KpiData;
 import com.vp.analytics.ms.metrics.domain.model.Transaction;
 
 import java.math.BigDecimal;
@@ -21,4 +22,6 @@ public interface TransactionQueryPort {
     Map<String, BigDecimal> revenueGroupedByCategoryAndPeriod(String clientId, LocalDate referenceDate);
 
     Map<String, BigDecimal> expenseGroupedByCategoryAndPeriod(String clientId, LocalDate referenceDate);
+
+    KpiData fetchKpiData(String clientId, LocalDate referenceDate);
 }

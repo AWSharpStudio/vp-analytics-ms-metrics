@@ -30,6 +30,4 @@ class EExpenseCategoriesTest {
         assertEquals(EExpenseCategories.NOT_CATEGORIZED, EExpenseCategories.labelOf("Trafego Pago"));
         assertEquals(EExpenseCategories.NOT_CATEGORIZED, EExpenseCategories.labelOf("equipe de vendas"));
     }
-
-
 }

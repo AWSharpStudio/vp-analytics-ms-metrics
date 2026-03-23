@@ -1,6 +1,5 @@
 package com.vp.analytics.ms.metrics.domain.model;
 
-
 import lombok.Getter;
 
 @Getter
