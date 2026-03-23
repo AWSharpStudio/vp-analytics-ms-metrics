@@ -2,7 +2,7 @@ package com.vp.analytics.ms.metrics.domain.calculation;
 
 import java.math.BigDecimal;
 
-public enum KpiFormula {
+public enum EKpiFormula {
     AVERAGE_TICKET(new AverageTicketCalculator()),
     CAC(new CacCalculator()),
     LTV(new LtvCalculator(new AverageTicketCalculator())),
@@ -10,7 +10,7 @@ public enum KpiFormula {
 
     private final KpiCalculator calculator;
 
-    KpiFormula(KpiCalculator calculator) {
+    EKpiFormula(KpiCalculator calculator) {
         this.calculator = calculator;
     }
 
