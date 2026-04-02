@@ -10,11 +10,11 @@ public enum EKpiFormula {
 
     private final KpiCalculator calculator;
 
-    EKpiFormula(KpiCalculator calculator) {
+    EKpiFormula(final KpiCalculator calculator) {
         this.calculator = calculator;
     }
 
-    public BigDecimal calculate(KpiData data) {
+    public BigDecimal calculate(final KpiData data) {
         return this.calculator.calculate(data);
     }
 }

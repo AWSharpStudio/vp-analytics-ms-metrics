@@ -14,13 +14,13 @@ public enum EExpenseCategories {
     private final String label;
     private final boolean isAcquisitionCost;
 
-    EExpenseCategories(String label, boolean isAcquisitionCost) {
+    EExpenseCategories(final String label, final boolean isAcquisitionCost) {
         this.label = label;
         this.isAcquisitionCost = isAcquisitionCost;
     }
 
-    public static EExpenseCategories labelOf(String label) {
-        for (EExpenseCategories value : values()) {
+    public static EExpenseCategories labelOf(final String label) {
+        for (final EExpenseCategories value : values()) {
             if (value.label.equals(label)) {
                 return value;
             }

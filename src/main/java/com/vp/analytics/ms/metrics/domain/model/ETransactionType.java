@@ -11,7 +11,7 @@ public enum ETransactionType {
 
     private final String label;
 
-    ETransactionType(String label) {
+    ETransactionType(final String label) {
         this.label = label;
     }
 
@@ -23,8 +23,8 @@ public enum ETransactionType {
         return this == EXPENSE;
     }
 
-    public static ETransactionType labelOf(String label) {
-        for (ETransactionType value : values()) {
+    public static ETransactionType labelOf(final String label) {
+        for (final ETransactionType value : values()) {
             if (value.label.equals(label)) {
                 return value;
             }

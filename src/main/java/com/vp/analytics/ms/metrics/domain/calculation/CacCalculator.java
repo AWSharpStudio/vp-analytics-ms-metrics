@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 public class CacCalculator implements KpiCalculator {
 
     @Override
-    public BigDecimal calculate(KpiData data) {
+    public BigDecimal calculate(final KpiData data) {
         if (data.newCustomerCount() <= 0) return BigDecimal.ZERO;
         return data.totalAcquisitionExpenses().divide(
                 BigDecimal.valueOf(data.newCustomerCount()), 2, RoundingMode.HALF_UP);

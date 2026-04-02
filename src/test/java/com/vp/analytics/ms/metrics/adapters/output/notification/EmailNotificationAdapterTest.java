@@ -1,11 +1,9 @@
 package com.vp.analytics.ms.metrics.adapters.output.notification;
 
-import com.vp.analytics.ms.metrics.domain.exception.ReportNotFoundException;
 import com.vp.analytics.ms.metrics.domain.model.EExpenseCategories;
 import com.vp.analytics.ms.metrics.domain.model.ERevenueCategories;
 import com.vp.analytics.ms.metrics.domain.model.KpiReport;
 import com.vp.analytics.ms.metrics.domain.model.KpiResult;
-import com.vp.analytics.ms.metrics.domain.ports.input.MetricsRepositoryPort;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -25,11 +23,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -44,9 +40,6 @@ class EmailNotificationAdapterTest {
 
     @Mock
     private JavaMailSender mailSender;
-
-    @Mock
-    private MetricsRepositoryPort metricsRepository;
 
     @InjectMocks
     private EmailNotificationAdapter notificationAdapter;
@@ -63,11 +56,9 @@ class EmailNotificationAdapterTest {
         KpiReport report = buildReport(null);
         MimeMessage realMessage = new MimeMessage((Session) null);
 
-        when(metricsRepository.findByClientIdAndPeriod(CLIENT_ID, null))
-                .thenReturn(Optional.of(report));
         when(mailSender.createMimeMessage()).thenReturn(realMessage);
 
-        assertDoesNotThrow(() -> notificationAdapter.sendReport(CLIENT_ID, null));
+        assertDoesNotThrow(() -> notificationAdapter.sendReport(CLIENT_ID, null, report));
 
         ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
 
@@ -86,11 +77,9 @@ class EmailNotificationAdapterTest {
         KpiReport report = buildReport(referenceDate);
         MimeMessage realMessage = new MimeMessage((Session) null);
 
-        when(metricsRepository.findByClientIdAndPeriod(CLIENT_ID, referenceDate))
-                .thenReturn(Optional.of(report));
         when(mailSender.createMimeMessage()).thenReturn(realMessage);
 
-        assertDoesNotThrow(() -> notificationAdapter.sendReport(CLIENT_ID, referenceDate));
+        assertDoesNotThrow(() -> notificationAdapter.sendReport(CLIENT_ID, referenceDate, report));
 
         ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
         verify(mailSender).send(messageCaptor.capture());
@@ -103,28 +92,15 @@ class EmailNotificationAdapterTest {
     }
 
     @Test
-    void shouldLogKpiNowFound() {
-        LocalDate referenceDate = LocalDate.of(2026, 3, 10);
-
-        when(metricsRepository.findByClientIdAndPeriod(CLIENT_ID, referenceDate))
-                .thenReturn(Optional.empty());
-
-        assertThrows(ReportNotFoundException.class, () -> notificationAdapter.sendReport(CLIENT_ID, referenceDate));
-
-        verify(mailSender, never()).send(any(MimeMessage.class));
-    }
-
-    @Test
     void shouldNotThrowWhenSmtpFails() {
-        when(metricsRepository.findByClientIdAndPeriod(CLIENT_ID, null))
-                .thenReturn(Optional.of(buildReport(null)));
+        KpiReport report = buildReport(null);
 
         MimeMessage message = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(message);
         try (MockedConstruction<MimeMessageHelper> helperMock = mockConstruction(MimeMessageHelper.class,
                 (mock, context) ->
                         doThrow(new MessagingException("error")).when(mock).setTo(anyString()))) {
-            assertDoesNotThrow(() -> notificationAdapter.sendReport(CLIENT_ID, null));
+            assertDoesNotThrow(() -> notificationAdapter.sendReport(CLIENT_ID, null, report));
 
             verify(mailSender, never()).send(any(MimeMessage.class));
         }

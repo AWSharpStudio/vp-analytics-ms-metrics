@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 public class NetResultCalculator implements KpiCalculator {
 
     @Override
-    public BigDecimal calculate(KpiData data) {
+    public BigDecimal calculate(final KpiData data) {
         return data.totalRevenue().subtract(data.totalExpenses());
     }
 }

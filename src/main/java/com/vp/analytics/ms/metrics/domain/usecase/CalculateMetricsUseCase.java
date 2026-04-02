@@ -6,8 +6,9 @@ import com.vp.analytics.ms.metrics.domain.model.KpiReport;
 import com.vp.analytics.ms.metrics.domain.model.KpiResult;
 import com.vp.analytics.ms.metrics.domain.model.TransactionIngestedEvent;
 import com.vp.analytics.ms.metrics.domain.ports.input.CalculateMetricsInputPort;
-import com.vp.analytics.ms.metrics.domain.ports.input.MetricsRepositoryPort;
-import com.vp.analytics.ms.metrics.domain.ports.input.TransactionQueryPort;
+import com.vp.analytics.ms.metrics.domain.ports.output.MetricsRepositoryPort;
+import com.vp.analytics.ms.metrics.domain.ports.output.NotificationPort;
+import com.vp.analytics.ms.metrics.domain.ports.output.TransactionQueryPort;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,15 +18,23 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Orchestrates KPI calculation for a given client and reference period
+ */
 public class CalculateMetricsUseCase implements CalculateMetricsInputPort {
 
     private final TransactionQueryPort queryPort;
 
     private final MetricsRepositoryPort metricsRepository;
 
-    public CalculateMetricsUseCase(final TransactionQueryPort queryPort, final MetricsRepositoryPort metricsRepository) {
+    private final NotificationPort notificationPort;
+
+    public CalculateMetricsUseCase(final TransactionQueryPort queryPort,
+                                   final MetricsRepositoryPort metricsRepository,
+                                   final NotificationPort notificationPort) {
         this.queryPort = queryPort;
         this.metricsRepository = metricsRepository;
+        this.notificationPort = notificationPort;
     }
 
     @Override
@@ -34,20 +43,10 @@ public class CalculateMetricsUseCase implements CalculateMetricsInputPort {
         final LocalDate referenceDate = LocalDate.now().withDayOfMonth(1);
 
         final KpiData kpiData = queryPort.fetchKpiData(clientId, referenceDate);
-
         final KpiResult result = buildKpiResult(kpiData);
-
-        metricsRepository.save(
-                new KpiReport(
-                UUID.randomUUID().toString(),
-                clientId,
-                event.uploadId(),
-                event.clientId(),
-                LocalDateTime.now(),
-                result,
-                event.transactionCount(),
-                referenceDate
-        ));
+        final KpiReport report = buildKpiReport(clientId, event, result, referenceDate);
+        metricsRepository.save(report);
+        notificationPort.sendReport(clientId, referenceDate, report);
     }
 
     private KpiResult buildKpiResult(final KpiData kpiData) {
@@ -61,6 +60,22 @@ public class CalculateMetricsUseCase implements CalculateMetricsInputPort {
                 values.get(EKpiFormula.NET_RESULT),
                 kpiData.revenueByCategory(),
                 kpiData.expenseByCategory()
+        );
+    }
+
+    private KpiReport buildKpiReport(final String clientId,
+                                     final TransactionIngestedEvent event,
+                                     final KpiResult result,
+                                     final LocalDate referenceDate) {
+        return new KpiReport(
+                UUID.randomUUID().toString(),
+                clientId,
+                event.uploadId(),
+                event.clientId(),
+                LocalDateTime.now(),
+                result,
+                event.transactionCount(),
+                referenceDate
         );
     }
 }

@@ -4,8 +4,9 @@ import com.vp.analytics.ms.metrics.domain.calculation.KpiData;
 import com.vp.analytics.ms.metrics.domain.model.KpiReport;
 import com.vp.analytics.ms.metrics.domain.model.KpiResult;
 import com.vp.analytics.ms.metrics.domain.model.TransactionIngestedEvent;
-import com.vp.analytics.ms.metrics.domain.ports.input.MetricsRepositoryPort;
-import com.vp.analytics.ms.metrics.domain.ports.input.TransactionQueryPort;
+import com.vp.analytics.ms.metrics.domain.ports.output.MetricsRepositoryPort;
+import com.vp.analytics.ms.metrics.domain.ports.output.NotificationPort;
+import com.vp.analytics.ms.metrics.domain.ports.output.TransactionQueryPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +35,9 @@ class CalculateMetricsUseCaseTest {
     @Mock
     private MetricsRepositoryPort metricsRepository;
 
+    @Mock
+    private NotificationPort notificationPort;
+
     private CalculateMetricsUseCase useCase;
 
     private static final String CLIENT_ID = "clientId";
@@ -41,7 +46,7 @@ class CalculateMetricsUseCaseTest {
 
     @BeforeEach
     void setup() {
-        useCase = new CalculateMetricsUseCase(queryPort, metricsRepository);
+        useCase = new CalculateMetricsUseCase(queryPort, metricsRepository, notificationPort);
         when(metricsRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
@@ -49,7 +54,9 @@ class CalculateMetricsUseCaseTest {
     void shouldCallFetchKpiDataSuccessfully() {
         when(queryPort.fetchKpiData(eq(CLIENT_ID), any())).thenReturn(emptyKpiData());
         useCase.calculate(EVENT);
-        verify(queryPort).fetchKpiData(eq(CLIENT_ID), any(LocalDate.class));
+        verify(queryPort, times(1)).fetchKpiData(eq(CLIENT_ID), any(LocalDate.class));
+        verify(metricsRepository, times(1)).save(any(KpiReport.class));
+        verify(notificationPort, times(1)).sendReport(eq(CLIENT_ID), any(LocalDate.class), any(KpiReport.class));
     }
 
     @Test
@@ -69,7 +76,10 @@ class CalculateMetricsUseCaseTest {
         useCase.calculate(EVENT);
 
         ArgumentCaptor<KpiReport> captor = ArgumentCaptor.forClass(KpiReport.class);
-        verify(metricsRepository).save(captor.capture());
+        verify(queryPort, times(1)).fetchKpiData(eq(CLIENT_ID), any(LocalDate.class));
+        verify(metricsRepository, times(1)).save(captor.capture());
+        verify(notificationPort, times(1)).sendReport(eq(CLIENT_ID), any(LocalDate.class), any(KpiReport.class));
+
         KpiResult result = captor.getValue().result();
 
         assertEquals(new BigDecimal("5000.00"), result.averageTicket());
@@ -85,7 +95,11 @@ class CalculateMetricsUseCaseTest {
         useCase.calculate(EVENT);
 
         ArgumentCaptor<KpiReport> captor = ArgumentCaptor.forClass(KpiReport.class);
-        verify(metricsRepository).save(captor.capture());
+        verify(queryPort, times(1)).fetchKpiData(eq(CLIENT_ID), any(LocalDate.class));
+        verify(metricsRepository, times(1)).save(captor.capture());
+        verify(notificationPort, times(1)).sendReport(eq(CLIENT_ID), any(LocalDate.class), any(KpiReport.class));
+
+
         assertEquals(CLIENT_ID, captor.getValue().clientId());
         assertEquals("uploadId", captor.getValue().uploadId());
         assertEquals(4, captor.getValue().transactionCount());
